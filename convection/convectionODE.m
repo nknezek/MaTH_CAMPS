@@ -33,6 +33,7 @@ dTadt=((A(2:end).*qb... heat flux from next layer below
     )./M... spread over the volume of each layer
     +H(t)... adding heat production W/kg; assumed constant layer
     )./C;... convert to temperature change
+    
 % dTadt=(H+(...
 %     (A(2:end).*qb... Heat flux from next layer below
 %     -A(1:end-1).*qt) ... Heat flux toward next layer above

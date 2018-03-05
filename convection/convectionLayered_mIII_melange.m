@@ -1,3 +1,7 @@
+%% Main Script for MaTH_CAMPS
+% Runs everything. 
+% Matt Weller, cool dude.
+
 %% Added Melt and Migration
 
 %%Todo
@@ -7,13 +11,13 @@
 %%
 clear all
 
-R=[3400;3300;2200;1830;100]*1e3; %Radius; m
+R=[3400;3300;2200;1830;100]*1e3; %Radius boundaries between layers; m
 %rho=[3.4; 3.4; 5.066; 7]*1e3; % density; kg/m^3
-rho=[3.2;3.4;4.0;8]*1e3; % from mix run
+rho=[3.2;3.4;4.0;8]*1e3; % density of layers, from mix run
 
-Ts=250;
+Ts=250; % surface temperature, K
 
-Cl=4600;   %How long to run time series in Mys
+time_end=4600;   %How long to run time series in Mys
 
 %mark=[[Ts Ta(end,[2:4])]' R(1:4)];
 
@@ -34,8 +38,8 @@ lambda=[1.37e-17;1.37e-17; 1.37e-17; 0];         % decay constants
 
 
 %% Geometry
-A=4*pi*R.^2; %Area; m^2
-Vc=4*pi/3.*R.^3; %cumulative volume; m^3;
+A=4*pi*R.^2; %Surface Area of layer boundaries; m^2
+Vc=4*pi/3.*R.^3; %cumulative volume of layer; m^3;
 V=diff(-Vc); %volume in each layer
 n=numel(V); %number of layers
 
@@ -99,7 +103,21 @@ for x=1:n
     Ta0(x)=[Ta0(x)-dTm0(x)];
 end
 
-[t,Ta]=ode45(@(t,Ta)convectionODE(t,Ta,Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R), [0/Myr,Cl*Myr],Ta0);
+% Solve the system the first time, before melt processing
+% [t,Ta]=ode45(@(t,Ta)convectionODE(t,Ta,Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R), [0/Myr,time_end*Myr],Ta0);
+%%
+dt = 1; %time step in Myr
+t = 1:dt:time_end;
+Ta = zeros(length(t),n);
+t = t'*Myr; % Convert to seconds
+dt = dt*Myr; % Convert to seconds
+Ta(1,:) = Ta0;
+%%
+for i=1:(length(t)-1)
+    dTa_dt = convectionODE(t(i),Ta(i,:)',Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R);
+    Ta(i+1,:) = Ta(i,:) + dTa_dt'*dt;
+end
+% [t,Ta]=dTadt = convectionODE(t,Ta,Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R), [0/Myr,time_end*Myr],Ta0);
 
 
 %% Melting processing
@@ -134,11 +152,11 @@ tmelt=t(ind)/Myr;              %time series of melt to rerun solver and melt mod
 
 
 % Loop to take time step at every f, melt, resolve Ta from ode -- easy
-% peasy --> eg., [t(10)/Myr,Cl*Myr],Ta0);, where Ta0 would now be the last
+% peasy --> eg., [t(10)/Myr,time_end*Myr],Ta0);, where Ta0 would now be the last
 % solved f step, then splice times togther -- WATCH INDEXING
 if length(ind) > 1
     for m=2:length(tmelt)
-        [t1,Ta1]=ode45(@(t,Ta)convectionODE(t,Ta,Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R), [tmelt(m)*Myr,Cl*Myr],Ta(m-1,:));  % uses Temperatures from last time step Ta(m-1) as inital condition for new melt time step tmelt(m)
+        [t1,Ta1]=ode45(@(t,Ta)convectionODE(t,Ta,Tuf,Tlf,Ts,Theta,gamma,A,M,H,Cp,n,R), [tmelt(m)*Myr,time_end*Myr],Ta(m-1,:));  % uses Temperatures from last time step Ta(m-1) as inital condition for new melt time step tmelt(m)
          [f1,dTm1]=melt(Tsol,Tliq,Ta1,Cp,L,M,n);
          Ta1=Ta1-dTm1;
 %           for x=1:n
@@ -233,7 +251,10 @@ Tmat(:,i*3+1)=Tb(:,n+1);
 
 
 %% Plotting
-plotting(t,Myr,Qu,n,Ht,A,Ta,flv,Tmat,Rmat,Ra,Crt,f,B,Tb)
+Npl = 1000;
+plotting(t(1:Npl:end),Myr,Qu(1:Npl:end,:),n,Ht(1:Npl:end,:),A, ...
+Ta(1:Npl:end,:),flv(1:Npl:end,:),Tmat(1:Npl:end,:),Rmat(1:Npl:end,:), ...
+Ra(1:Npl:end,:),Crt(1:Npl:end,:),f(1:Npl:end,:),B(1:Npl:end,:),Tb(1:Npl:end,:))
 
 
 %% Dynamo shutoff time based on termination heat output of ~ 1-2 Tw -- 20-60 mw/m^2
@@ -266,7 +287,7 @@ display(['Cumulative Crustal Thickness ' ' ' num2str(sum(Crt(2:end))) ' km'   ' 
 
 display(['Cumulative Eruption Rate of ' ' ' num2str(0.2*sum(flv)/((t(end)/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive
 
-inda=find (t/Myr > (Cl-3e3)); indh=find(t/Myr < (Cl-3e3) & t/Myr > (Cl-3.8e3)); indn=find(t/Myr < (Cl-3.8e3));
+inda=find (t/Myr > (time_end-3e3)); indh=find(t/Myr < (time_end-3e3) & t/Myr > (time_end-3.8e3)); indn=find(t/Myr < (time_end-3.8e3));
 Amaz=flv(inda); Hesp=flv(indh); Noac=flv(indn); 
 
 display(['Noachian Eruption Rate of ' ' ' num2str(0.2*sum(flv(indn))/((t(indn(end))/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive 

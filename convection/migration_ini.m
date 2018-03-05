@@ -36,13 +36,15 @@ if (dT(1) + Ti(1)) > Tsol(1)
     f0 = (Tt-Tsol(1))/(Tliq(1)-Tsol(1));
     
     %This part needs some work ... think on
-    if f0 > 1
+    if f0 >= 1
         fl=f+Q0(1)/(M(1)*L(1)*f0);                     % assume entire layer melts, rest of energy is lost radiatively
     end
     if f0 < 1
         %fl=f0 + Q0(1)/(M(1)*L(1)*f0);
         fl=f+Q0(1)/(M(1)*L(1)*f0);
     end
+else
+    fl=0.;
 end
 
 if (dT(1) + Ti(1)) < Tsol(1)
