@@ -1,0 +1,90 @@
+%% Test Thermal Evolution Code 
+% Adiabatic convection up and thermal conduction down
+% Nicholas Knezek
+
+N = 150; % layers in core
+
+R = 2000e3; % [m], radius of Martian Core
+dr = R/N; % [m]
+D = 6203e3; % m, adiabatic lengthscale
+
+cp = 840; %J/kg-K = m^2/s^2-K
+rho = linspace(12e4, 9e4, N); % kg/m^3
+k = 135; % J/m-K-s = kg-m/K-s^3
+
+re = linspace(0,R,N+1); % m
+r = linspace(dr/2, R-dr/2, N); %m
+dV = 4*pi*dr*r.^2; % m^3
+A = 4*pi*re.^2; % m^2
+
+rho_cp_dV = rho.*cp.*dV; % J/K
+
+T_cmb = 2300; % K
+T_ad = adiabat(T_cmb, r, R, D); % K
+
+T_vec0 = horzcat(T_p,T_cmb);
+
+%% Test ode solver
+Myr = 365.25*24*3600*1e6; % s (1 Myr)
+Nt = 4500;
+end_time = 4500*Myr;
+Q_cmb = -0.1e12;
+
+%%
+dt = 0.1*Myr;
+odef = @(t,T) dconvect_and_conduct_dt(T', r, dr, D, A, dt, k, rho_cp_dV, Q_cmb)';
+% odef = @(t,y) dTdt_core(y, Q_cmb);
+tspan = linspace(Myr,end_time,Nt);
+[t, T_t] = ode15s(odef, tspan, T_ad');
+
+%%
+T_cmb = T_t(:,end);
+T_cen = T_t(:,1);
+T_start = T_ad;
+T_end = T_t(end,:);
+
+t_plt = t/Myr;
+r_plt = r/1e3;
+figure()
+plot(t_plt,T_cmb)
+hold on
+plot(t_plt,T_cen)
+legend('cmb','center')
+figure()
+plot(r_plt,T_start)
+hold on
+plot(r_plt,T_end)
+legend('init','end')
+
+%% Euler Method
+t = linspace(Myr, end_time,Nt);
+dt = t(2)-t(1);
+T_cmb = zeros(1,Nt);
+T_cen = zeros(1,Nt);
+T = T_ad;
+T_start = T;
+for i=1:Nt
+    T = convect_and_conduct(T, r, dr, D, A, dt, k, rho,cp,dV, Q_cmb);
+%     dTdt = dconvect_and_conduct_dt(T, r, dr, D, A, dt, k, rho_cp_dV, Q_cmb);
+%     T = T+dTdt*dt;
+    T_cmb(i) = T(end);
+    T_cen(i) = T(1);    
+end
+T_end = T;
+%% Plot Results
+t_plt = t/Myr;
+r_plt = r/1e3;
+figure()
+plot(t_plt,T_cmb)
+hold on
+plot(t_plt,T_cen)
+legend('cmb','center')
+
+figure()
+plot(r_plt,T_start)
+hold on
+plot(r_plt,T_end)
+legend('init','end')
+
+%% Verify Energy Balance
+E_i = energy(T, rho_cp_dV)
