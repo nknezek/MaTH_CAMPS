@@ -1,14 +1,12 @@
-function temp_v_t(t,T,Nplt)
+function temp_v_t(t,T,pc,Nplt)
 % Plot temperature vs radius
 %
 % parameters
 % T [K] - (1,N) temperature at each radial layer 
 % t [s] - 
 
-global pc
-
 switch nargin
-    case 2
+    case 3
         Nplt = 200;
 end
 di = round(length(t)/Nplt);

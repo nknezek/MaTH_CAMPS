@@ -1,11 +1,10 @@
-function T_out = convect_and_conduct(T, dt, Q_cmb, debug, debugerr)
+function T_out = convect_and_conduct(T, dt, Q_cmb, pc, debug, debugerr)
 % Computes one timestep convecting and conducting temperature in core
 % 
 % Parameters
 % T [K] - (1,N) vector of temperatures in each layer
 % dt [s] - timestep
 % Q_cmb [W = J/s] - heat out of top of core
-global pc
 
 switch nargin
     case 3
@@ -14,11 +13,14 @@ switch nargin
 end
 r = pc.r;
 N = pc.N;
-E_i = core.utils.energy(T); % Initial Energy of Core
+E_i = core.utils.energy(T,pc); % Initial Energy of Core
 
 % Conduct heat down gradients
 qe = -pc.k*(T(2:end)-T(1:end-1))./pc.dr; % W/m^2, conductive heat flow across layer boundaries
 Qe = zeros(1, length(T)); % W, conductive heat flow across layer boundaries 
+disp(length(Qe(1:end-1)))
+disp(length(qe))
+disp(length(pc.A(2:end-1)))
 Qe(1:end-1) = qe.*pc.A(2:end-1); % W
 Qe(end) = Q_cmb; % W , heat flow out top of core 
 Q = zeros(1,length(T)); % W, net conductive heat flux out of each layer
@@ -29,14 +31,14 @@ T_cond = T+dT_cond; % K
 
 if max(dT_cond)>1
     if debugerr==1 || debug==1
-        core.plot.temp_v_r(dT_cond, 'dTemperature')
+        core.plot.temp_v_r(dT_cond, pc,'dTemperature')
         figure()
         hold on
-        core.plot.temp_v_r(T, 'init')
-        core.plot.temp_v_r(T_cond, 'cond')
+        core.plot.temp_v_r(T, pc, 'init')
+        core.plot.temp_v_r(T_cond,pc, 'cond')
         legend('init','cond')
     end
-    error('conduction is causing a temperature change > 1 K, use a smaller timestep. dt=%.2f Myr currently. error',dt/pc.Myr)
+%     error('conduction dT = %.2f > 1 K, use a smaller timestep. dt=%.2f Myr currently. error',max(dT_cond), dt/pc.Myr)
 end
 
 % Find regions in which convection occurs, then convect them
@@ -47,7 +49,7 @@ T_regions = T_cond; % temperatures to use to define convective/conductive region
 Q_typical = 1e11;
 epsilonTp1 = 1+min(Q_typical*dt/mean(pc.rho_cp_dV)*1e-4,1e-4);
 for i=N:-1:2
-    T_im1a = core.utils.adiabat_from(T_regions(i),r(i),r(i-1));
+    T_im1a = core.utils.adiabat_from(T_regions(i),r(i),r(i-1), pc);
     if T_im1a <= T_regions(i-1)*epsilonTp1 % in convective regime
         if in_an_adiabat == 0 % in top layer of convective regime
             i_ad_top = i;
@@ -61,7 +63,7 @@ for i=N:-1:2
             Ch_ad_total = Ch_ad_total + pc.rho_cp_dV(i)*exp((r(i_ad_top)^2 - r(i)^2)/pc.D^2);
             T_ad_top_new = T(i_ad_top)-Q_ad_top*dt/Ch_ad_total;
             for j=i:i_ad_top
-                T_out(j) = core.utils.adiabat_from(T_ad_top_new, r(i_ad_top), r(j));
+                T_out(j) = core.utils.adiabat_from(T_ad_top_new, r(i_ad_top), r(j), pc);
             end
             in_an_adiabat = 0;
             Ch_ad_total = 0;
@@ -75,7 +77,7 @@ if in_an_adiabat == 1
     Ch_ad_total = Ch_ad_total + pc.rho_cp_dV(i)*exp((r(i_ad_top)^2 - r(i)^2)/pc.D^2);
     T_ad_top_new = T(i_ad_top)-Q_ad_top*dt/Ch_ad_total;
     for j=i:i_ad_top
-        T_out(j) = core.utils.adiabat_from(T_ad_top_new, r(i_ad_top), r(j));
+        T_out(j) = core.utils.adiabat_from(T_ad_top_new, r(i_ad_top), r(j), pc);
     end
 end
 if debug==1
@@ -102,12 +104,15 @@ end
 % dEl = dMsolid*L_h;
 
 % Correction to make sure you satisfy energy conservation
-E_f = core.utils.energy(T_out); % final energy of core, J
-dEq = Qe(end)*dt; % Heat pulled from core, J
-dEt = E_f-E_i; % change in internal energy, J
+E_o = core.utils.energy(T_out); % final energy of core, J
+dEq = Qe(end)*dt; % Heat pulled out of core, J
+dEt = E_i-E_o; % change in internal energy, J
 % dE_corr = dEt-dEq+dEg+dEl;
-dE_corr = dEt+dEq;
+dE_corr = dEt-dEq;
 dT_corr = dE_corr/sum(pc.rho_cp_dV.*exp(-r.^2./pc.D^2));
+if max(abs(dT_corr)) > 1
+%     error('dT_corr = %.2f K is larger than 1 K. Maybe use a smaller timestep?',dT_corr)
+end
 T_out = T_out + dT_corr.*exp(-r.^2./pc.D^2);
 % *exp(-r.^2./D^2)
 end

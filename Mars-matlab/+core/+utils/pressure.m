@@ -1,10 +1,9 @@
-function P = pressure(r)
+function P = pressure(r, pc)
 % compute pressure at radial locaitons r in core
 %
 % parameter
 % r [m] - radial location 
 
-global pc
 switch nargin
     case 0
         r = pc.r;

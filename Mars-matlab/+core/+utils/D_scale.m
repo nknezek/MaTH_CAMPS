@@ -1,8 +1,7 @@
-function D = D_scale(rho_cen)
+function D = D_scale(rho_cen, pc)
 % Adiabatic Lengthscale in Core
 % used in T_a = T_cen*exp(-r^2/D^2)
 
-global pc
 switch nargin
     case 0
         rho_cen = pc.rho_cen;

@@ -1,7 +1,6 @@
-function L = L_scale(rho_cen)
+function L = L_scale(rho_cen, pc)
 % Density Length Scale in Core
 % used in rho(r) = rho_cen*exp(-r^2/L^2)
-global pc
 switch nargin
     case 0
         rho_cen = pc.rho_cen;

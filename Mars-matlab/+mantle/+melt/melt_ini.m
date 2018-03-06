@@ -1,6 +1,6 @@
-function [f,dT]=melt_ini(Tsol,Tliq,Ti,Cp, L,M,n);
+function [f,dT]=melt_ini(Ti,pm)
 
-%Finds initial melt f and dT to lid from T0 choice; 
+%Finds initial melt f and dT to lid from Ti choice; 
 
 %Note: Tacitly assumes heating up from solidus/sub-solidus, not cooling 
 %down from super-solidus/liquidus; can add assumption of crystallization 
@@ -12,7 +12,12 @@ function [f,dT]=melt_ini(Tsol,Tliq,Ti,Cp, L,M,n);
 
 % ADD change in T if latent heat does not remove all energy : Q=mcpdT
 
-
+Cp = pm.Cp;
+L = pm.L;
+M = pm.M;
+n = pm.n;
+Tsol = pm.Tsol;
+Tliq = pm.Tliq;
 
 %% Melting post proc
 f0=zeros(size(Ti));       % melt fraction based soley on T (gross over estimation)
@@ -24,7 +29,6 @@ Q2=zeros(size(Ti));       % energy balance assuming Q2 =0 and f, a check
 fa=zeros(size(Ti));       % melt fraction based soley on T (gross over estimation
 Tt=Ti; 
 
-
 layer=n-1;   % neglect melt in core --> solidii and liquidii are wrong here 
 %layer=n;     % Allow for melting in Core, should not 'remove' heat however, retool abit
 
@@ -32,21 +36,21 @@ layer=n-1;   % neglect melt in core --> solidii and liquidii are wrong here
 %Cpm=1500; %Melt Cp from di genova et al 2014
 
 
-for i=1:layer;
-    for j=1:1;
-        if (Ti(j,i) - Tliq(i) >= 0) && (Ti(j,i) - Tliq(i) >= 0);                                % find Ti from solver above the liquidus 
+for i=1:layer
+    for j=1:1
+        if (Ti(j,i) - Tliq(i) >= 0) && (Ti(j,i) - Tliq(i) >= 0)                                % find Ti from solver above the liquidus 
             f0(j,i) = (Ti(j,i)-Tsol(i))/(Tliq(i)-Tsol(i));          % melt fraction (not real)
             %Q0(j,i)=(Ti(j,i) - Tliq(i))*Cp(i)*M(i);                 % CURRENTLY UNDERESTIMATES MELT energy with no phase changes (not real), complete melt above liquidus
             Q0(j,i)=(Ti(j,i) - Tliq(i))*Cp(i)*M(i)*f0(j,i);         % energy with no phase changes (not real), complete melt above liquidus
             Q(j,i)=Q0(j,i)-M(i)*L(i);                              % System assumes Q0 is energy max, Q accounts for phase change (IS THIS CORRECT?) 
-            if Q(j,i) < 0;                                          % if energy is negative, not enough T increase to melt entire layer
+            if Q(j,i) < 0                                          % if energy is negative, not enough T increase to melt entire layer
                 f(j,i)=Q0(j,i)/(M(i)*L(i));                       % Find f that will give Q=0
                 Q1(j,i)=Q0(j,i)-M(i)*L(i)*f(j,i);
-                if (Q1(j,i)~=0) && (Q1(j,i)/Q(j,i) < 1e-15);        % rounding errors in 16th decimal place common in matlab (what this looks like)
+                if (Q1(j,i)~=0) && (Q1(j,i)/Q(j,i) < 1e-15)        % rounding errors in 16th decimal place common in matlab (what this looks like)
                     Q1(j,i)=0;                                     % sets likely rounding error to 0; Q < ~ 1e27, results in less than 1K change in T
                 end
             end
-            if Q(j,i) > 0;
+            if Q(j,i) > 0
 %                 f(j,i)=f(j,i)+ Q0(j,i)/(M(i)*L(i));   %cpMdt
 %                  display ([num2str(Q(j,i)) ' ' num2str(Tt(j,i)-Tsol(i))])
                   display ('Energy is greater than 0, can no longer neglect temperature change of parcel (e.g. include cp*M*dT + L*M)')
@@ -68,18 +72,18 @@ for i=1:layer;
         end
 
 
-         if (Tt(j,i) <= Tliq(i)) && (Tt(j,i) >= Tsol(i)); % find Ti from solver above the solidus
+         if (Tt(j,i) <= Tliq(i)) && (Tt(j,i) >= Tsol(i)) % find Ti from solver above the solidus
              f0(j,i) = (Tt(j,i)-Tsol(i))/(Tliq(i)-Tsol(i));          % melt fraction(not real)
              Q0(j,i)=(Tt(j,i) - Tsol(i))*Cp(i)*M(i)*f0(j,i);         % energy with no phase changes (not real), fractional melt above solidus
              Q(j,i)=Q0(j,i)-M(i)*L(i)*f0(j,i);                              % System assumes Q0 is energy max, Q accounts for phase change (IS THIS CORRECT?)
-            if Q(j,i) < 0;                                          % if energy is negative, not enough T increase to melt entire layer
+            if Q(j,i) < 0                                          % if energy is negative, not enough T increase to melt entire layer
                 f(j,i)=f(j,i)+ Q0(j,i)/(M(i)*L(i));                       % Find f that will give Q=0
                 Q1(j,i)=Q0(j,i)-M(i)*L(i)*f(j,i);
-                if (Q1(j,i)~=0) && (Q1(j,i)/Q(j,i) < 1e-15);        % rounding errors in 16th decimal place common in matlab (what this looks like)
+                if (Q1(j,i)~=0) && (Q1(j,i)/Q(j,i) < 1e-15)        % rounding errors in 16th decimal place common in matlab (what this looks like)
                     Q1(j,i)=0;                                     % sets likely rounding error to 0; Q < ~ 1e27, results in less than 1K change in T
                 end
             end
-            if Q(j,i) > 0;
+            if Q(j,i) > 0
 %                 f(j,i)=f(j,i)+ Q0(j,i)/(M(i)*L(i));   %cpMdt
 %                  display ([num2str(Q(j,i)) ' ' num2str(Tt(j,i)-Tsol(i))])
                   display ('Energy is greater than 0, can no longer neglect temperature change of parcel (e.g. include cp*M*dT + L*M)')

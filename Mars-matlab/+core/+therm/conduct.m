@@ -1,7 +1,5 @@
-function T_out = conduct(T, dt, Q_cmb)
+function T_out = conduct(T, dt, Q_cmb, pc)
 % conduct energy between radial layers in core
-
-global pc
 
 qe = -pc.k*(T(2:end)-T(1:end-1))./pc.dr; % W/m^2
 Qe = zeros(1, length(T)); % W

@@ -51,11 +51,15 @@ dEq = Q_cmb*Nt*dt
 dE_model = E_f-E_i
 
 %% ODE Solver
-dt = 0.1*Myr;
-odef = @(t,T) dconvect_and_conduct_dt(T', r, dr, D, A, dt, k, rho_cp_dV, Q_cmb)';
+N_myr = 450;
+end_time = N_myr*pc.Myr;
+Nt = 450;
+dt = 0.1*pc.Myr;
+T = T_ad;
+odef = @(t,T) core.therm.dconvect_and_conduct_dt(T', dt, Q_cmb)';
 % odef = @(t,y) dTdt_core(y, Q_cmb);
-tspan = linspace(Myr,end_time,Nt);
-[t, T_t] = ode15s(odef, tspan, T_ad');
+tspan = linspace(0,end_time,Nt);
+[t, T_t] = ode113(odef, tspan, T_ad');
 
 %% Plot ODE
 T_cmb = T_t(:,end);

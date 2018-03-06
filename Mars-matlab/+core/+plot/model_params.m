@@ -1,10 +1,9 @@
-function model_params(T_cmb)
+function model_params(T_cmb, pc)
 % Plot density, pressure, adiabat
 %
 % parameters
 % T_cmb [K] - Temperature at CMB
 
-global pc
 switch nargin
     case 0
         T_cmb = 2400; %[K]

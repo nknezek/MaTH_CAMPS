@@ -1,9 +1,8 @@
-function temp_v_r(T, title_text)
+function temp_v_r(T, pc, title_text)
 % Plot temperature vs radius
 %
 % parameters
 % T [K] - (1,N) temperature at each radial layer 
-global pc
 
 switch nargin
     case 1

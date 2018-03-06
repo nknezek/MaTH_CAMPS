@@ -1,12 +1,20 @@
+function pc = parameters(pm)
 %% Parameters for Martian Core
-global pc
+% Nicholas Knezek
+%
+% inputs
+% pm = parameters struct of mantle parameters
+%
+% returns 
+% pc = parameters struct of core parameters
+
 pc = struct;
 
-%% Number of layers
+%% Number of layers in core
 pc.N = 150; % [-]
 
 %% Radius of Core
-pc.r_cmb = 2000e3; % [m] (guess)
+pc.r_cmb = pm.R(end); % [m] (variable)
 
 %% Pressure at CMB
 pc.P_cmb = 20e9; % [Pa] (guess)
@@ -70,10 +78,10 @@ pc.G = 6.6743e-11; % [m^3/kg-s^2] - Gravitational Constant
 pc.Myr = 365.25*24*3600*1e6; % [s] - 1 Myr
 
 %% Adiabatic Length Scale
-pc.D = core.utils.D_scale(pc.rho_cen); % [m]
+pc.D = core.utils.D_scale(pc.rho_cen, pc); % [m]
 
 %% Pressure Length Scale
-pc.L = core.utils.L_scale(pc.rho_cen); % [m]
+pc.L = core.utils.L_scale(pc.rho_cen, pc); % [m]
 
 %% set up radial location vectors
 pc.dr = pc.r_cmb/pc.N; % [m]
@@ -83,11 +91,11 @@ pc.A = 4*pi*pc.re.^2; % [m^2] (1,N+1)
 pc.dV = 4*pi*pc.r.^2.*pc.dr; % [m^3] (1,N)
 
 %% Compute density through core
-pc.rho = core.utils.density(pc.r, pc.rho_cen, pc.D); % [m^3] (1,N)
+pc.rho = core.utils.density(pc.r, pc.rho_cen, pc.D, pc); % [m^3] (1,N)
 
 %% Compute Pressure through core (Pa)
-pc.P = core.utils.pressure(pc.r);
+pc.P = core.utils.pressure(pc.r, pc);
 
 %% Calculate helper parameters
 pc.rho_cp_dV = pc.rho.*pc.cp.*pc.dV; % J/K (1,N)
-
+end
