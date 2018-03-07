@@ -16,6 +16,7 @@ pm = mantle.parameters(); % mantle parameters
 pc = core.parameters(pm); % core parameters
 n = pm.n;
 
+
 %%
 Myr = pm.Myr;
 
@@ -36,6 +37,8 @@ times = [times_init,linspace(times_init(end)+dt, time_end*Myr, Nt)];
 Ntkeep_approx = 1000; % approx number of timesteps to keep
 dtkeep = max(1,ceil(Nt/Ntkeep_approx));
 Ntkeep = ceil(Nt/dtkeep);
+
+
 %% Initial Temperatures
 
 % starting temperatures of each layer
@@ -43,6 +46,7 @@ Ntkeep = ceil(Nt/dtkeep);
 Tm0 = [pm.Tliq(1), pm.Tliq(2), pm.Tsol(3)-250];
 Tc0 = core.utils.adiabat(pm.Tsol(4)+25, pc);
 T0 = [Tm0,Tc0];
+
 
 %% Early melt processing for solid state convection 
 
@@ -57,6 +61,8 @@ for x=1:pm.n
     Tm0(x) = Tm0(x)-dTm0(x);
 end
 T0(1:3) = Tm0;
+
+
 %% Solve the system using Euler stepping
 T = T0;
 Tvec = zeros(Ntkeep,length(T0));
@@ -89,6 +95,7 @@ Tc = Tvec(:,pm.n+1:end);
 
 %% Postprocessing
 pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
+
 
 %% Plot all things in plotting function
 mantle.plot.run_summary(pp,pm,pc)
