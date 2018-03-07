@@ -1,9 +1,10 @@
 function fig = Urey_Buoyancy(pp,pm,pc)
 Myr = pm.Myr;
 
-hold on
 fig = figure();
-clf;
+clf
+hold on
+
 subplot 221;
 plot(pp.t_plt,pp.Ht./pm.A(1)./(pp.Qu(:,1)),'b','linewidth', 2.5);
 hold on;
@@ -19,7 +20,7 @@ subplot 222;
 plot(pp.B, pp.Tb(:,3),'*'); xlabel('Buoyancy number'); ylabel('Temperature[k]');
 
 subplot 223;
-plot(pp.Tmat',pp.Rmat'/1000);
+plot(pp.Tmat(1:100:end,:)',pp.Rmat(1:100:end,:)'/1000);
 xlabel('Temperature (K)');
 ylabel('Radius (km)');
 ylim([1000,max(max(pp.Tm'))]);

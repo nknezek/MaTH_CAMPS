@@ -90,7 +90,6 @@ Tc = Tvec(:,pm.n+1:end);
 %% Postprocessing
 pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
 
-
 %% Plot all things in plotting function
 mantle.plot.run_summary(pp,pm,pc)
 mantle.plot.Urey_Buoyancy(pp,pm,pc)

@@ -47,6 +47,7 @@ end
 
 Tb(:,n+1)=Tl(:,end); %made-up temperature at the center of the planet; only used in post-processing
 pp.Tu = Tu;
+pp.Tl = Tl;
 pp.Tb = Tb;
 
 %Temperature drop (K)
@@ -75,16 +76,17 @@ pp.Rl = Rl;
 Tmat=NaN(nt,3*n+1);
 Rmat=NaN(nt,3*n+1);
 for i=1:n
-    Tmat(:,i*3-2)=Tb(:,i);
-    Tmat(:,i*3-1)=Tu(:,i);
-    Tmat(:,i*3-0)=Tl(:,i);
+    Tmat(:,i*3-2)=pp.Tb(:,i);
+    Tmat(:,i*3-1)=pp.Tu(:,i);
+    Tmat(:,i*3-0)=pp.Tl(:,i);
     Rmat(:,i*3-2)=repmat(R(i),[nt,1]);
     Rmat(:,i*3-1)=Ru(:,i);
     Rmat(:,i*3-0)=Rl(:,i);
 end
-pp.Rmat(:,n*3+1)=repmat(R(n+1),[nt,1]);
-pp.Tmat(:,i*3+1)=Tb(:,n+1);
-
+Rmat(:,n*3+1)=repmat(R(n+1),[nt,1]);
+Tmat(:,i*3+1)=Tb(:,n+1);
+pp.Rmat = Rmat;
+pp.Tmat = Tmat;
 %% buoyancy number between bottom layer and UM  --> 
 % e.g. B = (rhol-rho0)/(alpha*rho0*delT)
 pp.B=(rho(end-1)-rho(end-2))./(a(end-2)*rho(end-2)*(Tb(:,end)-Tb(:,1)));
