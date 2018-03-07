@@ -1,12 +1,9 @@
 function fig = run_summary(pp,pm,pc)
 Myr = pm.Myr;
 A = pm.A;
-n = pm.n;
-
-fig = figure(); 
-clf
 
 hold on
+fig = figure(1); clf
 subplot 221;
 plot(pp.t_plt,pp.Qu'*1e3, 'linewidth', 2.5)
 xlabel('Time (Myr)');
@@ -16,25 +13,25 @@ title('Top of each layer');
 legend(num2str([1:n]'));
 hold on;
 plot(pp.t_plt,pp.Ht./pm.A(1)*1e3,'k','linewidth',3.5);
-if pp.t_plt(end) >=4.56e3
+if t(end)/Myr >=4.56e3
     x=[4.56e3,4.56e3]; y=[-50,150]; plot(x,y,'k'); % current time
 end
-if pp.t_plt(end) >=0.56e3
+if t(end)/Myr >=0.56e3
     x=[0.56e3,0.56e3]; y=[-50,150]; plot(x,y,'r'); % Dynamo shutoff
 end
 
 subplot 222;
-plot(pp.t_plt,pp.Tm', 'linewidth', 2.5);
+plot(pp.t_plt,Ta', 'linewidth', 2.5);
 xlabel('time (Myr)');
 ylabel('temperature (K)');
 title('Average for each layer (with melt)');
 legend(num2str([1:n]'));
 hold on;
-if pp.t_plt(end) >=4.56e3; 
-    x=[4.56e3,4.56e3]; y=[0,max(max(pp.Tm'))]; plot(x,y,'k'); % current time
+if t(end)/Myr >=4.56e3; 
+    x=[4.56e3,4.56e3]; y=[0,max(max(Ta'))]; plot(x,y,'k'); % current time
 end
-if pp.t_plt(end) >=0.56e3; 
-    x=[0.56e3,0.56e3]; y=[0,max(max(pp.Tm'))]; plot(x,y,'r'); % Dynamo shutoff
+if t(end)/Myr >=0.56e3; 
+    x=[0.56e3,0.56e3]; y=[0,max(max(Ta'))]; plot(x,y,'r'); % Dynamo shutoff
 end
 
 % subplot 223;
@@ -52,39 +49,39 @@ end
 % legend(num2str([1:n]'));
 % %ylim([0,1]); xlim([min(pp.t_plt),max(pp.t_plt)]);
 % ylim([0,(max(max(f)))]); 
-% if pp.t_plt(end) >=4.56e3; 
+% if t(end)/Myr >=4.56e3; 
 %     x=[4.56e3,4.56e3]; y=[0,max(max(Ta'))]; plot(x,y,'k'); % current time
 % end
-% if pp.t_plt(end) >=0.56e3; 
+% if t(end)/Myr >=0.56e3; 
 %     x=[0.56e3,0.56e3]; y=[0,max(max(Ta'))]; plot(x,y,'r'); % Dynamo shutoff
 % end
 
 subplot 223;
-semilogy(pp.t_plt, pp.flv', 'b', 'linewidth', 2.5);
+semilogy(pp.t_plt, flv', 'b', 'linewidth', 2.5);
 hold on
 xlabel('Time (Myr)');
 ylabel('Melt production km^3');
 %ylim([0,1]); xlim([min(pp.t_plt),max(pp.t_plt)]);
-ylim([0,(max(max(pp.flv)))]); 
-if pp.t_plt(end) >=4.56e3
-    x=[4.56e3,4.56e3]; y=[0,max(max(pp.flv'))]; plot(x,y,'k'); % current time
+ylim([0,(max(max(flv)))]); 
+if t(end)/Myr >=4.56e3; 
+    x=[4.56e3,4.56e3]; y=[0,max(max(flv'))]; plot(x,y,'k'); % current time
 end
-if pp.t_plt(end) >=0.56e3
-    x=[0.56e3,0.56e3]; y=[0,max(max(pp.flv'))]; plot(x,y,'r'); % Dynamo shutoff
+if t(end)/Myr >=0.56e3; 
+    x=[0.56e3,0.56e3]; y=[0,max(max(flv'))]; plot(x,y,'r'); % Dynamo shutoff
 end
 
 
 
 subplot 224;
-plot(pp.t_plt,pp.Tmat', 'linewidth', 2.5)
+plot(pp.t_plt,Tmat', 'linewidth', 2.5)
 xlabel('time (Myr)');
 ylabel('temperature (K)');
-title('Temperatures (without melt) (actually with melt with euler)');
+title('Temperatures (without melt)');
 hold on;
-if pp.t_plt(end) >=4.56e3
-    x=[4.56e3,4.56e3];y=[0,max(max(pp.Tm'))]; plot(x,y,'k'); % current time
+if t(end)/Myr >=4.56e3; 
+    x=[4.56e3,4.56e3];y=[0,max(max(Ta'))]; plot(x,y,'k'); % current time
 end
-if pp.t_plt(end) >=0.56e3
-    x=[0.56e3,0.56e3];y=[0,max(max(pp.Tm'))]; plot(x,y,'r'); % Dynamo shutoff
+if t(end)/Myr >=0.56e3; 
+    x=[0.56e3,0.56e3];y=[0,max(max(Ta'))]; plot(x,y,'r'); % Dynamo shutoff
 end
 end

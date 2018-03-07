@@ -19,19 +19,13 @@ n = pm.n;
 %%
 Myr = pm.Myr;
 
-time_start = 0; % [Myr] start time
-time_init = 1; % [Myr] length of initial burn-in time
-dt_myr_init = 0.001; % [Myr] size of initial burn-in Euler timestep
-time_end = 4500;   % [Myr] How long to run time series
-dt_myr = 0.01; % [Myr] size of Euler timestep for most of Earth history
+time_end = 4;   % [Myr] How long to run time series
+dt_myr = 0.01; % [Myr] size of Euler timestep
 
-Nt_init = round(time_init/dt_myr_init);
-times_init = linspace(0,time_init*Myr,Nt_init);
-
-Nt = round((time_end-time_init)/dt_myr);
+Nt = round(time_end/dt_myr);
 dt = dt_myr*Myr;
 pc.dt = dt;
-times = [times_init,linspace(times_init(end)+dt, time_end*Myr, Nt)];
+times = linspace(0,time_end*Myr,Nt);
 
 Ntkeep_approx = 1000; % approx number of timesteps to keep
 dtkeep = max(1,ceil(Nt/Ntkeep_approx));
@@ -62,15 +56,10 @@ T = T0;
 Tvec = zeros(Ntkeep,length(T0));
 tvec = zeros(Ntkeep,1);
 fvec = zeros(Ntkeep,pm.n);
-
 i = 1;
-Tvec(i,:) = T;
-tvec(i) = times(i);
-fvec(i,:) = f0;
-i = i+1;
-for it=2:Nt
+for it=1:Nt
     dTdt = convectionODE(times(it),T',pm,pc);
-    T = T + dTdt'*(times(it)-times(it-1));
+    T = T + dTdt'*dt;
     % Melting processing
     % calculate change in temperature from melt and update Ta
     [f,dTm] = mantle.melt.melt(T(1:pm.n),pm);
@@ -79,27 +68,37 @@ for it=2:Nt
     if mod(it,dtkeep) == 0
         Tvec(i,:) = T;
         tvec(i) = times(it);
-        fvec(i,:) = f;
+        fvec(i) = f;
         i = i+1;
     end
+    
 end
 Tm = Tvec(:,1:pm.n);
 Tc = Tvec(:,pm.n+1:end);
 
+%% Plot things to test
+hold on
+core.plot.temp_v_r(Tc(1,:),pc)
+core.plot.temp_v_r(Tc(end,:),pc)
+figure()
+hold on
+plot(tvec,Tm(:,1))
+plot(tvec,Tm(:,2))
+plot(tvec,Tm(:,3))
+hold off
+
 
 %% Postprocessing
-pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
+mantle.post_processing(t,Ta,f,pm,pc)
 
 
 %% Plot all things in plotting function
-mantle.plot.run_summary(pp,pm,pc)
-mantle.plot.Urey_Buoyancy(pp,pm,pc)
-mantle.plot.melt(pp,pm,pc)
-core.plot.temp_profiles(pp,pm,pc)
-core.plot.temp_layers(pp,pm,pc)
+% Npl = 1000;
+% plotting(t(1:Npl:end),Myr,Qu(1:Npl:end,:),n,Ht(1:Npl:end,:),A, ...
+% Ta(1:Npl:end,:),flv(1:Npl:end,:),Tmat(1:Npl:end,:),Rmat(1:Npl:end,:), ...
+% Ra(1:Npl:end,:),Crt(1:Npl:end,:),f(1:Npl:end,:),B(1:Npl:end,:),Tb(1:Npl:end,:))
 
 
 %% Dynamo shutoff time based on termination heat output of ~ 1-2 Tw -- 20-60 mw/m^2
-% TODO
 % core.utils.dynamo_timing(Qu)
 

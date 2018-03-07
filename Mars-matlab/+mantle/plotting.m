@@ -2,7 +2,7 @@ function []=plotting(t,Myr,Qu,n,Ht,A,Ta,flv,Tmat,Rmat,Ra,Crt,f,B,Tb);
 
 %% Plotting
 
-
+%% Figure
 hold on
 figure(2); clf
 subplot 221;
@@ -32,7 +32,7 @@ xlabel('Time (Myr)');
 ylabel('Ra');
 
 
-
+%% Figure
 figure(3); clf
 subplot 221;
 plot(t/Myr,Crt','b','linewidth', 2.5);
