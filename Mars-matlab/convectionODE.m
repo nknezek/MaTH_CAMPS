@@ -28,7 +28,7 @@ Tb(n+1)=Tc(end); % CMB temperature from core code
 dTu=Tu-Tb(1:end-1);
 dTl=Tb(2:end)-Tl;
 
-% heat flow across boundary layers
+% heat flow across boundary layers [W/m^2]
 qt=sign(dTu).*pm.Theta.*(abs(dTu)).^(4/3);
 qb=sign(dTl).*pm.Theta.*(abs(dTl)).^(4/3);
 
@@ -37,9 +37,11 @@ dTmdt=((A(2:end).*qb... heat flux from next layer below
     )./M... spread over the mass of each layer
     +mantle.utils.H(t,pm)... adding heat production W/kg; assumed constant layer
     )./C;... convert to temperature change
-dt = 0.01*pm.Myr;
-dTcdt = core.therm.dconvect_and_conduct_dt(Tc', dt, qb(end), pc);
-dTalldt = [dTmdt',dTcdt]';
 
+% call core processing
+dt = pc.dt;
+dTcdt = core.therm.dconvect_and_conduct_dt(Tc', dt, qb(end)*A(end), pc);
+
+dTalldt = [dTmdt',dTcdt]';
 end
     

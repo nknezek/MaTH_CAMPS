@@ -7,7 +7,7 @@ function T_out = convect_and_conduct(T, dt, Q_cmb, pc, debug, debugerr)
 % Q_cmb [W = J/s] - heat out of top of core
 
 switch nargin
-    case 3
+    case 4
         debug = 0;
         debugerr = 0;
 end

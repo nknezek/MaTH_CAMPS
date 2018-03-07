@@ -1,4 +1,13 @@
-function post_proc = post_processesing(t,Ta,f,pm,pc)
+function pp = post_processesing(t,Ta,f,pm,pc)
+% Perform various post-processing routines after a run of the thermal
+% evolution code
+pp = struct;
+
+rho = pm.rho;
+eta = pm.eta;
+R = pm.R;
+a = pm.a;
+
 % migrate melt to the lid to recrystallize (assume all moves to lid) 
 % only used for melt production calculations, not temp change
 [dTl,flm,flv,Crt]=migration(f,Ta,pm);   % need to fix, thinks first time step is 8000k
@@ -7,7 +16,7 @@ function post_proc = post_processesing(t,Ta,f,pm,pc)
 % ======================
 % temperature post-proc
 % ======================
-% Calculate full temperatures within layer at all timesteps (not reported
+%% Calculate full temperatures within layer at all timesteps (not reported
 % from ODE)
 nt=size(Ta,1);
 Tu=Ta./repmat(mu',[nt,1]); %base of the upper BL
@@ -21,7 +30,6 @@ end
 
 Tb(:,n+1)=Tl(:,end); %made-up temperature at the center of the planet; only used in post-processing
 
-
 %Temperature drop (K)
 DTu=Tu-Tb(:,1:end-1);
 DTl=Tb(:,2:end)-Tl;
@@ -33,13 +41,30 @@ kMat=repmat(k',[nt,1]);
 du=kMat.*DTu./Qu;
 dl=kMat.*DTl./Ql;
 
-%buoyancy number between bottom layer and UM  --> 
-% e.g. B = (rhol-rho0)/(alpha*rho0*delT)
-B=(rho(end-1)-rho(end-2))./(a(end-2)*rho(end-2)*(Tb(:,end)-Tb(:,1)));
+% Calculate temperature at each layer boundary and thermal boundary layer Temp and radius
+Ru=repmat([R(1:end-1)]',[nt,1])-du; %radius at the bottom of the upper BL
+Rl=repmat([R(2:end)]',[nt,1])+dl; %radius at the top of the lower BL
 
-%System Ra (uses averages) ****NOTE: Currently setup for n=3,4 system
-Llr=(R(n-1)-R(n))/((R(n-2)-R(end-1)));      %percent of lower layer to entire convecting mantle (Radial)
-Ulr=(R(n-2)-R(n-1))/((R(n-2)-R(end-1)));    %percent of upper layer to entire convecting mantle (Radial)
+Tmat=NaN(nt,3*n+1);
+Rmat=NaN(nt,3*n+1);
+for i=1:n
+    Tmat(:,i*3-2)=Tb(:,i);
+    Tmat(:,i*3-1)=Tu(:,i);
+    Tmat(:,i*3-0)=Tl(:,i);
+    Rmat(:,i*3-2)=repmat(R(i),[nt,1]);
+    Rmat(:,i*3-1)=Ru(:,i);
+    Rmat(:,i*3-0)=Rl(:,i);
+end
+pp.Rmat(:,n*3+1)=repmat(R(n+1),[nt,1]);
+pp.Tmat(:,i*3+1)=Tb(:,n+1);
+
+%% buoyancy number between bottom layer and UM  --> 
+% e.g. B = (rhol-rho0)/(alpha*rho0*delT)
+pp.B=(rho(end-1)-rho(end-2))./(a(end-2)*rho(end-2)*(Tb(:,end)-Tb(:,1)));
+
+%% System Ra (uses averages) ****NOTE: Currently setup for n=3,4 system
+Llr=(R(n-1)-R(n))/((R(n-2)-R(end-1)));      % percent of lower layer to entire convecting mantle (Radial)
+Ulr=(R(n-2)-R(n-1))/((R(n-2)-R(end-1)));    % percent of upper layer to entire convecting mantle (Radial)
 rho_a=Llr*rho(end-1)+Ulr*rho(end-2);
 eta_a=Llr*eta(end-1)+Ulr*eta(end-2);
 
@@ -54,30 +79,14 @@ for i=1:length(Tb)
         Ra(i,2)=NaN;  %temperature inversion
     end
 end
+pp.Ra = Ra;
 
-Ru=repmat([R(1:end-1)]',[nt,1])-du; %radius at the bottom of the upper BL
-Rl=repmat([R(2:end)]',[nt,1])+dl; %radius at the top of the lower BL
-
-% radiactive heating in each layer over time
+%% radiactive heating in each layer over time
 HMat=repmat(H0',[nt,1]).*exp(-repmat(lambda',[nt,1]).*repmat(t,[1,n]));
 VMat=repmat(V',[nt,1]); % volume 
 rhoMat=repmat(rho',[nt,1]); % density
-Ht=sum(HMat.*VMat.*rhoMat,2); % total heat production
 
-%% Calculate temperature at each layer boundary 
-% and thermal boundary layer Temp and radius
-Tmat=NaN(nt,3*n+1);
-Rmat=NaN(nt,3*n+1);
-for i=1:n
-    Tmat(:,i*3-2)=Tb(:,i);
-    Tmat(:,i*3-1)=Tu(:,i);
-    Tmat(:,i*3-0)=Tl(:,i);
-    Rmat(:,i*3-2)=repmat(R(i),[nt,1]);
-    Rmat(:,i*3-1)=Ru(:,i);
-    Rmat(:,i*3-0)=Rl(:,i);
-end
-Rmat(:,n*3+1)=repmat(R(n+1),[nt,1]);
-Tmat(:,i*3+1)=Tb(:,n+1);
+pp.Ht=sum(HMat.*VMat.*rhoMat,2); % total heat production
 
 %% Eruption rate
 

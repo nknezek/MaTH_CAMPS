@@ -5,7 +5,7 @@ function temp_v_r(T, pc, title_text)
 % T [K] - (1,N) temperature at each radial layer 
 
 switch nargin
-    case 1
+    case 2
         title_text = 'Temperature';
 end
 

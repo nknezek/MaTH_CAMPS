@@ -17,6 +17,7 @@ pc = core.parameters(pm); % core parameters
 n = pm.n;
 time_end=4;   %How long to run time series in Myrs
 Myr = pm.Myr;
+pc.dt = 0.01*Myr;
 
 %% Initial Temperatures
 
@@ -90,7 +91,7 @@ if length(ind) > 1
 end
 
 %% Postprocessing
-% mantle.post_processing(t,Ta,f,pm,pc)
+mantle.post_processing(t,Ta,f,pm,pc)
 
 
 %% Plot all things in plotting function
