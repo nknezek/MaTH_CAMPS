@@ -22,7 +22,7 @@ for i=2:n
     Tb(i)=(th(i).*Tu(i)+th(i-1).*Tl(i-1))./(th(i)+th(i-1));
 end
 
-Tb(n+1)=Tc(1); % CMB temperature from core code
+Tb(n+1)=Tc(end); % CMB temperature from core code
 
 % change in temperature across boundary layers
 dTu=Tu-Tb(1:end-1);
