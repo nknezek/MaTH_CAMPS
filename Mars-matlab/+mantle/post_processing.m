@@ -118,7 +118,7 @@ rhoMat=repmat(pm.rho',[nt,1]); % density
 pp.Ht=sum(HMat.*VMat.*rhoMat,2); % total heat production
 
 %% Eruption rate
-
+try
 display(['Cumulative Eruptive volume of' ' ' num2str(0.2*sum(flv)/1e10) 'e10 km^3'])     % assumes 80% intrusive, 20% extrusive
 display(['Cumulative Eruptive volume in' ' ' num2str(0.2*sum(flv(2:end))/(pi*(R(1)/1e3)^2*0.25*100*.2)) '  '  'Tharsis Volumes (ignoring initial volume of crust formation)'])     % assumes 80% intrusive, 20% extrusive
 display(['Cumulative Crustal Thickness ' ' ' num2str(sum(Crt)) ' km'])     % assumes 80% intrusive, 20% extrusive
@@ -126,12 +126,16 @@ display(['Cumulative Crustal Thickness ' ' ' num2str(sum(Crt(2:end))) ' km'   ' 
 
 display(['Cumulative Eruption Rate of ' ' ' num2str(0.2*sum(flv)/((t(end)/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive
 
-inda=find (t/Myr > (time_end-3e3)); indh=find(t/Myr < (time_end-3e3) & t/Myr > (time_end-3.8e3)); indn=find(t/Myr < (time_end-3.8e3));
+inda=find (t/Myr > (time_end-3e3)); 
+indh=find(t/Myr < (time_end-3e3) & t/Myr > (time_end-3.8e3)); 
+indn=find(t/Myr < (time_end-3.8e3));
 Amaz=flv(inda); Hesp=flv(indh); Noac=flv(indn); 
 
 display(['Noachian Eruption Rate of ' ' ' num2str(0.2*sum(flv(indn))/((t(indn(end))/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive 
 display(['Hesperian Eruption Rate of ' ' ' num2str(0.2*sum(flv(indh))/((t(indh(end))/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive
 display(['Amazonian Eruption Rate of ' ' ' num2str(0.2*sum(flv(inda))/((t(inda(end))/Myr)*1e6)) ' km^3 yr^-1'])     % assumes 80% intrusive, 20% extrusive
-
+catch
+    
+end
 
 end

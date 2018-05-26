@@ -1,4 +1,4 @@
-function pm = parameters()
+function pm = parameters(layer_case, wtpS)
 %% Parameters for Martian Mantle
 % Nicholas Knezek
 %
@@ -6,18 +6,39 @@ function pm = parameters()
 % pm = parameters struct of mantle parameters
 
 pm = struct;
+R_core = core.utils.core_size_from_wtpS(wtpS)/1e3; % get core size given wtpS
 
 % Number of layers for thermal convection (crust, mantle, lower mantle)
-pm.n = 3; % [-]
+if layer_case == 0 % no layer
+    pm.n = 2; % number of layers in mantle
+    alpha_layer = 2.2e-5; %[1/K] - thermal expansivity of layer
+    eta_layer = 1e19; % [Pa-s] - viscosity lower layer 
+    pm.R = [3400; 3300; R_core]*1e3; %Radius boundaries between layers; m
+    pm.rho=[3.2; 3.4]*1e3; % density of layers, from mix run
+
+elseif layer_case == 1 % hot start
+    pm.n = 3; % [-]
+    alpha_layer = 3e-5; %[1/K] - thermal expansivity of layer
+    eta_layer = 1e19; % [Pa-s] - viscosity lower layer 
+    pm.R = [3400; 3300; 2200; R_core]*1e3; %Radius boundaries between layers; m
+    pm.rho=[3.2; 3.4; 4.0]*1e3; % density of layers, from mix run
+    
+elseif layer_case == 2 % cold start
+    pm.n = 3; % [-]
+    alpha_layer = 2.1e-5; %[1/K] - thermal expansivity of layer
+    eta_layer = 1e16; % [Pa-s] - viscosity lower layer 
+    pm.R = [3400; 3300; 2200; R_core]*1e3; %Radius boundaries between layers; m
+    pm.rho=[3.2; 3.4; 4.0]*1e3; % density of layers, from mix run
+    
+end
+
 ones_vec = ones(pm.n,1);
 
 % Geometry
-pm.R = [3400; 3300; 2200; 1830]*1e3; %Radius boundaries between layers; m
 pm.A = 4*pi*pm.R.^2; %Surface Area of layer boundaries; m^2
 Vc = 4*pi/3.*pm.R.^3; %cumulative volume of layer; m^3;
 pm.V = diff(-Vc); %volume in each layer
 
-pm.rho=[3.2; 3.4; 4.0]*1e3; % density of layers, from mix run
 pm.M = pm.rho.*pm.V; %mass in each layer
 pm.g = 3.71*ones_vec; % [m/s^2] - acceleration of gravity
 
@@ -34,7 +55,7 @@ pm.K(3) = 0.5e-6; % IMPORTANT: ONLY WORKS FOR 4-layer case
 
 % Viscosity
 pm.eta = 0.1e21*ones_vec;  % [Pa-s] - viscosity structure 
-pm.eta(3) = 1e16; % [Pa-s] - viscosity lower layer 
+pm.eta(end-1) = eta_layer; % [Pa-s] - viscosity lower layer 
 pm.eta(1) = 1e21;     % [Pa-s] - viscosity  of 'lid' 
 pm.nu = pm.eta./pm.rho; % [m^2/s] - kinematic viscosity for each layer; 
 
@@ -43,6 +64,7 @@ pm.L = 6e5*ones_vec;   % [J/kg] - Latent heat of fusion
 pm.Cp = pm.k./(pm.rho.*pm.K); % [J/kg-K] heat capacity
 pm.Cp(3) = 1000; % [J/kg-K] heat capacity lower layer 
 pm.a = (2e-5)*ones_vec; % [1/K] - thermal expansivity (alpha)
+pm.a(end-1) = alpha_layer;
 
 % == convection parameters
 pm.beta = (1/3)*ones_vec; %parameter; Nu=Ra^(1/beta);

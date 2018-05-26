@@ -76,10 +76,11 @@ fvec(i,:) = f0;
 i = i+1;
 for it=2:Nt
     dTdt = convectionODE(times(it),T',pm,pc);
+    Tprev = T;
     T = T + dTdt'*(times(it)-times(it-1));
     % Melting processing
     % calculate change in temperature from melt and update Ta
-    [f,dTm] = mantle.melt.melt(T(1:pm.n),pm);
+    [f,dTm] = mantle.melt.melt(Tprev(1:pm.n),T(1:pm.n),pm);
     T(1:pm.n) = T(1:pm.n)-dTm;
 
     if mod(it,dtkeep) == 0

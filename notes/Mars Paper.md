@@ -20,12 +20,19 @@ secondary observations
 
 #### Main text
 
-1. Conceptual layout 
+1. # Conceptual layout 
+
    1. pie slice about the layer / chemistry / rationale of the models
    2. solidus and liquidus of mantle
    3. geochem basics of paper
 2. Model results v time
    1. a) cold, b) hot, c) no layer
+      1. cold start layer
+         1. partial magma ocean
+      2. hot start layer
+         1. full magma ocean
+      3. no layer
+         1. 
    2. Heat flux, melt
 3. Mass, MOI
    1. ​

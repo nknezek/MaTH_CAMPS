@@ -38,7 +38,7 @@ ylim([0,0.25]);
 if t(end)/Myr >=4.56e3 
     x=[4.56e3,4.56e3]; y=[0,max(max(Tm'))]; plot(x,y,'k'); % current time
 end
-if t(end)/Myr >=0.56e3; 
+if t(end)/Myr >=0.56e3
     x=[0.56e3,0.56e3]; y=[0,max(max(Tm'))]; plot(x,y,'r'); % Dynamo shutoff
 end
 end
