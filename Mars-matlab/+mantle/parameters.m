@@ -91,10 +91,15 @@ pm.lambda = [1.37e-17;1.37e-17; 1.37e-17];         % decay constants
 %Tliq= -1.22E-10*((R(1)-R)/1e3).^4 + 5.763E-07*((R(1)-R)/1e3).^3 - 0.00088614*((R(1)-R)/1e3).^2 + 8.0731E-01*((R(1)-R)/1e3) + 1765;
 
 %Combination of (Schmerr, Fei, Bertka 2001 LPSC abstract) 
-R = pm.R;
-pm.Tsol = 2.02E-07*((R(1)-R)/1e3).^3 - 0.001*((R(1)-R)/1e3).^2 + 1.68E+00*((R(1)-R)/1e3) + 1.34E+03;
-pm.Tliq = 9.36E-08*((R(1)-R)/1e3).^3 - 5.28e-4*((R(1)-R)/1e3).^2 + 1.06E+00*((R(1)-R)/1e3) + 1.79E+03;
+%R = pm.R;
+%pm.Tsol = 2.02E-07*((R(1)-R)/1e3).^3 - 0.001*((R(1)-R)/1e3).^2 + 1.68E+00*((R(1)-R)/1e3) + 1.34E+03;
+%pm.Tliq = 9.36E-08*((R(1)-R)/1e3).^3 - 5.28e-4*((R(1)-R)/1e3).^2 + 1.06E+00*((R(1)-R)/1e3) + 1.79E+03;
 
+
+% New formulation Duncan et al., 2018 (in press... soonish)
+R = pm.R;
+pm.Tsol = 2.17E-07*((R(1)-R)/1e3).^3 - 9.153E-04*((R(1)-R)/1e3).^2 + 1.501E+00*((R(1)-R)/1e3) + 1.365E+03;
+pm.Tliq = -1.075E-05*((R(1)-R)/1e3).^2 + 3.730E-01*((R(1)-R)/1e3) + 1.938E+03;
 
 %Temperature for non-magma melt ocean
 %Tbase=[2100 +- 200 K]
