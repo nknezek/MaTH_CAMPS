@@ -132,22 +132,6 @@ save([basefolder,folder,'pp.mat'],'pp')
 
 %% Plot all things in plotting function
 
-% wtpS = 15;
-% param_case = 2;
-for wtpS = [5,15,25]
-for param_case = 1:2
-folder_casenames = ["nolayer/","hot/","cold/"];
-basefolder = './results/';
-folder = [char(folder_casenames(param_case+1)),sprintf('%.0fwtpS/', wtpS)];
-mkdir([basefolder,folder])
-
-load([basefolder,folder,'pp.mat'])
-pm = mantle.parameters(param_case, wtpS); % mantle parameters
-pc = core.parameters(pm); % core parameters
-pp.pm = pm;
-pp.pc = pc;
-save([basefolder,folder,'pp.mat'],'pp')
-
 fig = mantle.plot.run_summary(pp,pm,pc);
 saveas(fig,[basefolder,folder,'run_summary.png'])
 
@@ -165,8 +149,5 @@ saveas(fig,[basefolder,folder,'temp_profiles.png'])
 
 
 close all 
-end
-end
-%%
 end
 end
