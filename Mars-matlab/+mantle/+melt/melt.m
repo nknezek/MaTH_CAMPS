@@ -28,7 +28,10 @@ f=zeros(size(Ti));        % melt fraction based on conservation of energy/phase 
 Q1=zeros(size(Ti));       % energy balance assuming Q1 =0 and f, a check
 Q2=zeros(size(Ti));       % energy balance assuming Q2 =0 and f, a check
 fa=zeros(size(Ti));       % melt fraction based soley on T (gross over estimation
+dT = zeros(size(Ti)); % temperature drawn away by melt
+
 Tt=Ti;
+
 count = 0;
 countl=0;
 counts=0;
@@ -89,11 +92,11 @@ for i=1:layer
             display ('Fault is in solidus approximation: assume either f increases, or melt takes away excess heat')
             counts=counts+1;
         end
-        Tt(i)=Tsol(i);
+        Tt(i) = Tsol(i);
+        dT(i) = Ti(i)-Tsol(i);
     end
 end
 
 %Find change in temperarture due to melting effects  (note: will force Temps to solidus if melt is present)
-dT=Ti-Tt;
 
 end

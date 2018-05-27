@@ -31,7 +31,9 @@ subplot 223;
 Tplt = pp.Tvec(1:100:end,:);
 Tplt(:,4:end) = pp.Tvec(1:100:end,end:-1:4);
 Tplt = Tplt';
-Rplt = [pm.R(1:3)',pc.r(end:-1:1)]/1000;
+Rplt = [pm.R(1:pm.n)',pc.r(end:-1:1)]/1000;
+disp(size(Rplt))
+disp(size(Tplt))
 plot(Tplt,Rplt);
 xlabel('Temperature (K)');
 ylabel('Radius (km)');

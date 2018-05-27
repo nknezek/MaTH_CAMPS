@@ -90,27 +90,27 @@ pp.Rmat = Rmat;
 pp.Tmat = Tmat;
 %% buoyancy number between bottom layer and UM  --> 
 % e.g. B = (rhol-rho0)/(alpha*rho0*delT)
-pp.B=(rho(end-1)-rho(end-2))./(a(end-2)*rho(end-2)*(Tb(:,end)-Tb(:,1)));
+pp.B=(rho(end)-rho(end-1))./(a(end-1)*rho(end-1)*(Tb(:,end)-Tb(:,1)));
 
 %% System Ra (uses averages) ****NOTE: Currently setup for n=3,4 system
-Llr=(R(n-1)-R(n))/((R(n-2)-R(end-1)));      % percent of lower layer to entire convecting mantle (Radial)
-Ulr=(R(n-2)-R(n-1))/((R(n-2)-R(end-1)));    % percent of upper layer to entire convecting mantle (Radial)
-rho_a=Llr*rho(end-1)+Ulr*rho(end-2);
-eta_a=Llr*eta(end-1)+Ulr*eta(end-2);
-
-Ra=zeros(length(Tb),2);
-for i=1:length(Tb)
-    Ra(i,1)=mean(a)*rho_a*mean(g)*(Tb(i,end-1)-Tb(i,1))*(R(1)-R(end-1))^3/(mean(K)*eta_a);            % system Ra
-    Ra(i,2)=a(n-1)*rho(n-1)*g(n-1)*(Tb(i,end-1)-Tb(i,end-2))*(R(n-1)-R(n))^3/(K(n-1)*eta(n-1));           % ll Mantle Ra
-    if max(Tb(i,:))-min(Tb(i,:)) < 700
-        Ra(i,1)=1; Ra(i,2)=1;
-    end
-    if Ra(i,2) < 0
-        Ra(i,2)=NaN;  %temperature inversion
-    end
-end
-pp.Ra = Ra;
-
+% Llr=(Rmat(n-1)-Rmat(n))/((R(1)-R(2)));      % percent of lower layer to entire convecting mantle (Radial)
+% Ulr=(Rmat(n-2)-Rmat(n-1))/((R(1)-R(2)));    % percent of upper layer to entire convecting mantle (Radial)
+% rho_a=Llr*rho(end-1)+Ulr*rho(end-2);
+% eta_a=Llr*eta(end-1)+Ulr*eta(end-2);
+% 
+% Ra=zeros(length(Tb),2);
+% for i=1:length(Tb)
+%     Ra(i,1)=mean(a)*rho_a*mean(g)*(Tb(i,end-1)-Tb(i,1))*(R(1)-R(end-1))^3/(mean(K)*eta_a);            % system Ra
+%     Ra(i,2)=a(n-1)*rho(n-1)*g(n-1)*(Tb(i,end-1)-Tb(i,end-2))*(R(n-1)-R(n))^3/(K(n-1)*eta(n-1));           % ll Mantle Ra
+%     if max(Tb(i,:))-min(Tb(i,:)) < 700
+%         Ra(i,1)=1; Ra(i,2)=1;
+%     end
+%     if Ra(i,2) < 0
+%         Ra(i,2)=NaN;  %temperature inversion
+%     end
+% end
+% pp.Ra = Ra;
+pp.Ra = 0;
 %% radiactive heating in each layer over time
 HMat=repmat(pm.H0',[nt,1]).*exp(-repmat(pm.lambda',[nt,1]).*repmat(t,[1,n]));
 VMat=repmat(pm.V',[nt,1]); % volume 

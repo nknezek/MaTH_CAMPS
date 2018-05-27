@@ -11,13 +11,15 @@
 %       add    Fix melt in lid temperature change
 %               temperature dependant viscosity (be aware of 1e-16 rounding errors, will crop up in temp dep visc )
 %%
+
 clear all
 
 % wtpS = 5; % 0 - 25 wt% S supported
 % param_case = 2; % 0: no layer, 1: hot case, 2: cold case
 
 for wtpS = [5,15,25]
-for param_case = 1:2
+% for param_case = 1:2
+for param_case = [0,]
     
 folder_casenames = ["nolayer/","hot/","cold/"];
 basefolder = './results/';
@@ -55,8 +57,12 @@ Ntkeep = ceil(Nt/dtkeep);
 
 % starting temperatures of each layer
 %Ta has time series of average temperature in each layer
-Tm0 = [pm.Tliq(1), pm.Tliq(2), pm.Tsol(3)-250];
-Tc0 = core.utils.adiabat(pm.Tsol(4)+25, pc);
+if param_case == 0
+    Tm0 = [pm.Tliq(1), pm.Tliq(2)];
+else
+    Tm0 = [pm.Tliq(1), pm.Tliq(2), pm.Tsol(3)-250];
+end
+Tc0 = core.utils.adiabat(pm.Tsol(end)+25, pc);
 T0 = [Tm0,Tc0];
 
 
@@ -72,7 +78,7 @@ f0(1) = fli(1);    % induced melt from crystaliztion in lid
 for x=1:pm.n
     Tm0(x) = Tm0(x)-dTm0(x);
 end
-T0(1:3) = Tm0;
+T0(1:pm.n) = Tm0;
 
 
 % Solve the system using Euler stepping
@@ -122,7 +128,7 @@ Tm = Tvec(:,1:pm.n);
 Tc = Tvec(:,pm.n+1:end);
 
 
-% Postprocessing
+%% Postprocessing
 pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
 pp.flv = melt_mass_vec;
 pp.Crt = crust_thickness_vec;
