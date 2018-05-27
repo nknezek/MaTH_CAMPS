@@ -60,17 +60,19 @@ end
 % end
 
 subplot 223;
-semilogy(pp.t_plt, pp.flv', 'b', 'linewidth', 2.5);
+flv_dt = diff(pp.flv,1,1)./diff(pp.t_plt);
+
+semilogy(pp.t_plt(1:end-1), flv_dt', 'b', 'linewidth', 2.5);
 hold on
 xlabel('Time (Myr)');
-ylabel('Melt production km^3');
+ylabel('Melt production (kg/Myr)');
 %ylim([0,1]); xlim([min(pp.t_plt),max(pp.t_plt)]);
-ylim([0,(max(max(pp.flv)))]); 
+ylim([0,(max(max(flv_dt)))]); 
 if pp.t_plt(end) >=4.56e3
-    x=[4.56e3,4.56e3]; y=[0,max(max(pp.flv'))]; plot(x,y,'k'); % current time
+    x=[4.56e3,4.56e3]; y=[0,max(max(flv_dt'))]; plot(x,y,'k'); % current time
 end
 if pp.t_plt(end) >=0.56e3
-    x=[0.56e3,0.56e3]; y=[0,max(max(pp.flv'))]; plot(x,y,'r'); % Dynamo shutoff
+    x=[0.56e3,0.56e3]; y=[0,max(max(flv_dt'))]; plot(x,y,'r'); % Dynamo shutoff
 end
 
 

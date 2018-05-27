@@ -34,8 +34,8 @@ Myr = pm.Myr;
 time_start = 0; % [Myr] start time
 time_init = 1; % [Myr] length of initial burn-in time
 dt_myr_init = 0.001; % [Myr] size of initial burn-in Euler timestep
-time_end = 500;   % [Myr] How long to run time series % FIX THIS WRONG TODO
-% time_end = 4600;   % [Myr] How long to run time series
+% time_end = 500;   % [Myr] How long to run time series % FIX THIS WRONG TODO
+time_end = 4600;   % [Myr] How long to run time series
 dt_myr = 0.01; % [Myr] size of Euler timestep for most of Earth history
 
 Nt_init = round(time_init/dt_myr_init);
@@ -126,9 +126,27 @@ Tc = Tvec(:,pm.n+1:end);
 pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
 pp.flv = melt_mass_vec;
 pp.Crt = crust_thickness_vec;
-save([basefolder,folder,'pp.m'],'pp')
+pp.pm = pm;
+pp.pc = pc;
+save([basefolder,folder,'pp.mat'],'pp')
 
 %% Plot all things in plotting function
+
+% wtpS = 15;
+% param_case = 2;
+for wtpS = [5,15,25]
+for param_case = 1:2
+folder_casenames = ["nolayer/","hot/","cold/"];
+basefolder = './results/';
+folder = [char(folder_casenames(param_case+1)),sprintf('%.0fwtpS/', wtpS)];
+mkdir([basefolder,folder])
+
+load([basefolder,folder,'pp.mat'])
+pm = mantle.parameters(param_case, wtpS); % mantle parameters
+pc = core.parameters(pm); % core parameters
+pp.pm = pm;
+pp.pc = pc;
+save([basefolder,folder,'pp.mat'],'pp')
 
 fig = mantle.plot.run_summary(pp,pm,pc);
 saveas(fig,[basefolder,folder,'run_summary.png'])
@@ -147,5 +165,8 @@ saveas(fig,[basefolder,folder,'temp_profiles.png'])
 
 
 close all 
+end
+end
+%%
 end
 end
