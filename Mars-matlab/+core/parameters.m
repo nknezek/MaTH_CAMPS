@@ -1,4 +1,4 @@
-function pc = parameters(pm)
+function pc = parameters(pm, wtpS)
 %% Parameters for Martian Core
 % Nicholas Knezek
 %
@@ -10,6 +10,7 @@ function pc = parameters(pm)
 
 pc = struct;
 
+pc.wtpS = wtpS;
 %% Number of layers in core
 pc.N = 150; % [-]
 

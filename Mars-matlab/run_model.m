@@ -27,8 +27,8 @@ folder = [char(folder_casenames(param_case+1)),sprintf('%.0fwtpS/', wtpS)];
 mkdir([basefolder,folder])
 
 pm = mantle.parameters(param_case, wtpS); % mantle parameters
+pc = core.parameters(pm, wtpS); % core parameters
 
-pc = core.parameters(pm); % core parameters
 n = pm.n;
 %%
 Myr = pm.Myr;
@@ -153,6 +153,11 @@ saveas(fig,[basefolder,folder,'temp_layers.png'])
 fig = core.plot.temp_profiles(pp,pm,pc);
 saveas(fig,[basefolder,folder,'temp_profiles.png'])
 
+fig = core.plot.temp_and_Tliq(pp,pm,pc);
+saveas(fig,[basefolder,folder,'temp_vs_liq.png'])
+
+fig = core.plot.stratified_vs_time(pp,pm,pc);
+saveas(fig,[basefolder,folder,'stratified_vs_time.png'])
 
 close all 
 end
