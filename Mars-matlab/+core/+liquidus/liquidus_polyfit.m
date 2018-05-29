@@ -1,7 +1,7 @@
 function liq_fun = liquidus_polyfit(wtpS)
 % returns liquidus function taking in pressure (GPa) and returning
 % liquidus temperature (K)
-if wtpS==15
+if (wtpS >= 13) && (wtpS <= 17)
     data_l = csvread(['+core/+liquidus/liquidus_',num2str(wtpS),'S_low.csv'],1);
     Tliq_l = data_l(:,1); % K
     Pliq_l = data_l(:,2); % GPa
