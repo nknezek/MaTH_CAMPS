@@ -17,7 +17,7 @@ clear all
 % wtpS = 5; % 0 - 25 wt% S supported
 % param_case = 2; % 0: no layer, 1: hot case, 2: cold case
 
-for wtpS = [5,15,25]
+for wtpS = [15,25]
 % for param_case = 1:2
 for param_case = [0,]
     
