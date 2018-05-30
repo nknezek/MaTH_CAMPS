@@ -1,9 +1,10 @@
-% for wtpS = [5,15,25]
+for wtpS = [5,15,25]
 % for param_case = 1:2
 % for param_case = [0,]
+for param_case = [0,1,2]
 
-wtpS = 5;
-param_case = 0;
+% wtpS = 5;
+% param_case = 0;
 
 folder_casenames = ["nolayer/","hot/","cold/"];
 basefolder = './results/';
@@ -39,6 +40,6 @@ saveas(fig,[basefolder,folder,'temp_profiles.png'])
 % fig = core.plot.stratified_vs_time(pp,pm,pc);
 % saveas(fig,[basefolder,folder,'stratified_vs_time.png'])
 
-% close all 
-% end
-% end
+close all 
+end
+end

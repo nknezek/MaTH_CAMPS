@@ -17,10 +17,10 @@ clear all
 % wtpS = 5; % 0 - 25 wt% S supported
 % param_case = 2; % 0: no layer, 1: hot case, 2: cold case
 
-for wtpS = [15,25]
+for wtpS = [15,]
 % for param_case = 1:2
 for param_case = [0,]
-    
+
 folder_casenames = ["nolayer/","hot/","cold/"];
 basefolder = './results/';
 folder = [char(folder_casenames(param_case+1)),sprintf('%.0fwtpS/', wtpS)];
@@ -30,7 +30,6 @@ pm = mantle.parameters(param_case, wtpS); % mantle parameters
 pc = core.parameters(pm, wtpS); % core parameters
 
 n = pm.n;
-%%
 Myr = pm.Myr;
 
 time_start = 0; % [Myr] start time
@@ -58,28 +57,14 @@ Ntkeep = ceil(Nt/dtkeep);
 % starting temperatures of each layer
 %Ta has time series of average temperature in each layer
 if param_case == 0
-    Tm0 = [pm.Tliq(1), pm.Tliq(2)];
-else
-    Tm0 = [pm.Tliq(1), pm.Tliq(2), pm.Tsol(3)-250];
+    Tm0 = [pm.Tsol(1), pm.Tsol(2)];
+elseif param_case == 1
+    Tm0 = [pm.Tsol(1), pm.Tsol(2), pm.Tsol(3)];
+elseif param_case == 2
+    Tm0 = [pm.Tsol(1), pm.Tsol(2), pm.Tsol(3)-250];
 end
 Tc0 = core.utils.adiabat(pm.Tsol(end)+25, pc);
 T0 = [Tm0,Tc0];
-
-
-% Early melt processing for solid state convection 
-
-% Calculate melt from initial conditions to set initial solid state
-% temperature field for ODE solver
-[f0,dTm0] = mantle.melt.melt_ini(Tm0,pm);
-[dTli,flmi,flvi,Crti,fli] = mantle.melt.migration_ini(f0,Tm0(1),pm);   % calculates inital melting in lid
-f0(1) = fli(1);    % induced melt from crystaliztion in lid
-
-% Set initial temperatures to solidus approximation (solid state convection)
-for x=1:pm.n
-    Tm0(x) = Tm0(x)-dTm0(x);
-end
-T0(1:pm.n) = Tm0;
-
 
 % Solve the system using Euler stepping
 T = T0;
@@ -128,7 +113,7 @@ Tm = Tvec(:,1:pm.n);
 Tc = Tvec(:,pm.n+1:end);
 
 
-%% Postprocessing
+% Postprocessing
 pp = mantle.post_processing(tvec,Tvec,fvec,pm,pc);
 pp.flv = melt_mass_vec;
 pp.Crt = crust_thickness_vec;
@@ -136,7 +121,7 @@ pp.pm = pm;
 pp.pc = pc;
 save([basefolder,folder,'pp.mat'],'pp')
 
-%% Plot all things in plotting function
+% Plot all things in plotting function
 
 fig = mantle.plot.run_summary(pp,pm,pc);
 saveas(fig,[basefolder,folder,'run_summary.png'])

@@ -6,8 +6,10 @@ function pm = parameters(layer_case, wtpS)
 % pm = parameters struct of mantle parameters
 
 pm = struct;
-
-R_core = core.utils.core_size_from_wtpS(wtpS)/1e3; % get core size given wtpS
+wtpSdata = csvread('./wtpS_parameters.csv',1);
+Sdat = wtpSdata(find(wtpSdata(:,1)==wtpS),:);
+R_core = Sdat(2); % get core size given wtpS
+rho_coldlayer = Sdat(4);
 
 % Number of layers for thermal convection (crust, mantle, lower mantle)
 if layer_case == 0 % no layer
@@ -29,7 +31,7 @@ elseif layer_case == 2 % cold start
     alpha_layer = 2.1e-5; %[1/K] - thermal expansivity of layer
     eta_layer = 1e16; % [Pa-s] - viscosity lower layer 
     pm.R = [3400; 3300; 2200; R_core]*1e3; %Radius boundaries between layers; m
-    pm.rho=[3.2; 3.4; 4.9]*1e3; % density of layers, from mix run
+    pm.rho=[3.2; 3.4; rho_coldlayer)]*1e3; % density of layers, from mix run
     
 end
 
