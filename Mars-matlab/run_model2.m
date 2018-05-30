@@ -16,11 +16,9 @@ clear all
 
 % wtpS = [5,10,11,12,13,14,15,20,25] wt% S supported
 % param_case = 0: no layer, 1: hot case, 2: cold case
-% wtpSvals = [5,10,11,12,13,14,15,20,25];
-wtpSvals = [11,13,14,];
+wtpSvals = [5,10,11,13,14,15,20,25];
 for wtpS = wtpSvals
-for param_case = [0,1,]
-
+for param_case = [2,]
 
 folder_casenames = ["nolayer/","hot/","cold/"];
 basefolder = './results/';
