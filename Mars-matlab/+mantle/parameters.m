@@ -31,8 +31,7 @@ elseif layer_case == 2 % cold start
     alpha_layer = 2.1e-5; %[1/K] - thermal expansivity of layer
     eta_layer = 1e16; % [Pa-s] - viscosity lower layer 
     pm.R = [3400; 3300; 2200; R_core]*1e3; %Radius boundaries between layers; m
-    pm.rho=[3.2; 3.4; rho_coldlayer)]*1e3; % density of layers, from mix run
-    
+    pm.rho=[3.2; 3.4; rho_coldlayer]*1e3; % density of layers, from mix run
 end
 
 ones_vec = ones(pm.n,1);
